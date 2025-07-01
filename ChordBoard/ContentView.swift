@@ -8,14 +8,44 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var musicLibraryManager = MusicLibraryManager()
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView {
+            NavigationStack {
+                SongsView()
+            }
+            .tabItem {
+                Image(systemName: "music.note")
+                Text("Songs")
+            }
+            
+            NavigationStack {
+                AlbumsView()
+                    .environmentObject(musicLibraryManager)
+            }
+            .tabItem {
+                Image(systemName: "opticaldisc")
+                Text("Albums")
+            }
+            
+            NavigationStack {
+                ArtistsView()
+                    .environmentObject(musicLibraryManager)
+            }
+            .tabItem {
+                Image(systemName: "person.2")
+                Text("Artists")
+            }
+            
+            NavigationStack {
+                RanksView()
+            }
+            .tabItem {
+                Image(systemName: "chart.bar")
+                Text("Ranks")
+            }
         }
-        .padding()
     }
 }
 
