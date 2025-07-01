@@ -14,6 +14,7 @@ struct ContentView: View {
         TabView {
             NavigationStack {
                 SongsView()
+                    .environmentObject(musicLibraryManager)
             }
             .tabItem {
                 Image(systemName: "music.note")
@@ -40,6 +41,7 @@ struct ContentView: View {
             
             NavigationStack {
                 RanksView()
+                    .environmentObject(musicLibraryManager)
             }
             .tabItem {
                 Image(systemName: "chart.bar")

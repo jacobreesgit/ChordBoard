@@ -7,6 +7,7 @@
 
 import SwiftUI
 import MediaPlayer
+import SwiftData
 
 struct AlbumsView: View {
     @EnvironmentObject var musicLibrary: MusicLibraryManager
@@ -75,6 +76,15 @@ struct AlbumGridItemView: View {
 struct AlbumDetailView: View {
     let album: MPMediaItemCollection
     @EnvironmentObject var musicLibrary: MusicLibraryManager
+    @Environment(\.modelContext) private var modelContext
+    @StateObject private var eloManager: ELOManager
+    @State private var showingSongRanking = false
+    
+    init(album: MPMediaItemCollection) {
+        self.album = album
+        let container = try! ModelContainer(for: ELORating.self, RankingSession.self)
+        self._eloManager = StateObject(wrappedValue: ELOManager(modelContext: container.mainContext))
+    }
     
     var songs: [MPMediaItem] {
         musicLibrary.getSongsForAlbum(album)
@@ -103,7 +113,7 @@ struct AlbumDetailView: View {
                         
                         if songs.count >= 2 {
                             Button("Rank Songs") {
-                                // TODO: Implement song ranking
+                                showingSongRanking = true
                             }
                             .buttonStyle(.bordered)
                             .controlSize(.small)
@@ -123,6 +133,15 @@ struct AlbumDetailView: View {
         }
         .navigationTitle("Album")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showingSongRanking) {
+            HeadToHeadView(
+                items: songs,
+                context: RankingContext.albumSongs.contextKey(for: String(album.rankingID)),
+                contextDisplayName: "Songs from \(album.displayTitle)",
+                eloManager: eloManager,
+                modelContext: modelContext
+            )
+        }
     }
 }
 

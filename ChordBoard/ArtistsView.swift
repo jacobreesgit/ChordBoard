@@ -7,6 +7,7 @@
 
 import SwiftUI
 import MediaPlayer
+import SwiftData
 
 struct ArtistsView: View {
     @EnvironmentObject var musicLibrary: MusicLibraryManager
@@ -67,6 +68,16 @@ struct ArtistGridItemView: View {
 struct ArtistDetailView: View {
     let artist: MPMediaItemCollection
     @EnvironmentObject var musicLibrary: MusicLibraryManager
+    @Environment(\.modelContext) private var modelContext
+    @StateObject private var eloManager: ELOManager
+    @State private var showingAlbumRanking = false
+    @State private var showingSongRanking = false
+    
+    init(artist: MPMediaItemCollection) {
+        self.artist = artist
+        let container = try! ModelContainer(for: ELORating.self, RankingSession.self)
+        self._eloManager = StateObject(wrappedValue: ELOManager(modelContext: container.mainContext))
+    }
     
     var songs: [MPMediaItem] {
         musicLibrary.getSongsForArtist(artist)
@@ -94,7 +105,7 @@ struct ArtistDetailView: View {
                         HStack {
                             if songs.count >= 2 {
                                 Button("Rank Songs") {
-                                    // TODO: Implement song ranking
+                                    showingSongRanking = true
                                 }
                                 .buttonStyle(.bordered)
                                 .controlSize(.small)
@@ -102,7 +113,7 @@ struct ArtistDetailView: View {
                             
                             if albums.count >= 2 {
                                 Button("Rank Albums") {
-                                    // TODO: Implement album ranking
+                                    showingAlbumRanking = true
                                 }
                                 .buttonStyle(.bordered)
                                 .controlSize(.small)
@@ -136,6 +147,24 @@ struct ArtistDetailView: View {
         }
         .navigationTitle("Artist")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showingAlbumRanking) {
+            HeadToHeadView(
+                items: albums,
+                context: RankingContext.artistAlbums.contextKey(for: String(artist.rankingID)),
+                contextDisplayName: "Albums by \(artist.displayArtist)",
+                eloManager: eloManager,
+                modelContext: modelContext
+            )
+        }
+        .sheet(isPresented: $showingSongRanking) {
+            HeadToHeadView(
+                items: songs,
+                context: RankingContext.artistSongs.contextKey(for: String(artist.rankingID)),
+                contextDisplayName: "Songs by \(artist.displayArtist)",
+                eloManager: eloManager,
+                modelContext: modelContext
+            )
+        }
     }
 }
 
