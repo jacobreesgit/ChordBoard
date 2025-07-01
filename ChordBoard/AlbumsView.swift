@@ -24,7 +24,8 @@ struct AlbumsView: View {
                     ScrollView {
                         LazyVGrid(columns: columns, spacing: 20) {
                             ForEach(musicLibrary.albums, id: \.persistentID) { album in
-                                NavigationLink(destination: AlbumDetailView(album: album)) {
+                                NavigationLink(destination: AlbumDetailView(album: album)
+                                    .environmentObject(musicLibrary)) {
                                     AlbumGridItemView(album: album)
                                 }
                                 .buttonStyle(PlainButtonStyle())
@@ -98,6 +99,14 @@ struct AlbumDetailView: View {
                             Text(DateFormatter.year.string(from: year))
                                 .font(.caption)
                                 .foregroundColor(.secondary)
+                        }
+                        
+                        if songs.count >= 2 {
+                            Button("Rank Songs") {
+                                // TODO: Implement song ranking
+                            }
+                            .buttonStyle(.bordered)
+                            .controlSize(.small)
                         }
                     }
                     

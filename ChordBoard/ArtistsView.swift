@@ -24,7 +24,8 @@ struct ArtistsView: View {
                     ScrollView {
                         LazyVGrid(columns: columns, spacing: 20) {
                             ForEach(musicLibrary.artists, id: \.persistentID) { artist in
-                                NavigationLink(destination: ArtistDetailView(artist: artist)) {
+                                NavigationLink(destination: ArtistDetailView(artist: artist)
+                                    .environmentObject(musicLibrary)) {
                                     ArtistGridItemView(artist: artist)
                                 }
                                 .buttonStyle(PlainButtonStyle())
@@ -90,12 +91,22 @@ struct ArtistDetailView: View {
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                         
-                        if albums.count >= 2 {
-                            Button("Rank Albums") {
-                                // TODO: Implement album ranking
+                        HStack {
+                            if songs.count >= 2 {
+                                Button("Rank Songs") {
+                                    // TODO: Implement song ranking
+                                }
+                                .buttonStyle(.bordered)
+                                .controlSize(.small)
                             }
-                            .buttonStyle(.bordered)
-                            .controlSize(.small)
+                            
+                            if albums.count >= 2 {
+                                Button("Rank Albums") {
+                                    // TODO: Implement album ranking
+                                }
+                                .buttonStyle(.bordered)
+                                .controlSize(.small)
+                            }
                         }
                     }
                     
@@ -115,7 +126,8 @@ struct ArtistDetailView: View {
             if !albums.isEmpty {
                 Section("Albums") {
                     ForEach(albums, id: \.persistentID) { album in
-                        NavigationLink(destination: AlbumDetailView(album: album)) {
+                        NavigationLink(destination: AlbumDetailView(album: album)
+                            .environmentObject(musicLibrary)) {
                             ArtistAlbumRowView(album: album)
                         }
                     }
